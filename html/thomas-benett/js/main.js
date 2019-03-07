@@ -1,0 +1,155 @@
+"use strict";
+$(function () {
+  var toolbar = document.querySelector("header");
+  toolbar.addEventListener("click", function(e) {
+    var $anchor = $(e.target).attr('href');
+    if(!$anchor) return false;
+    $('html, body').stop().animate({
+      scrollTop: ($($anchor).offset().top - 50)
+    }, 1250, 'easeInOutExpo');
+    event.preventDefault();
+    event.stopPropagation();
+  });
+
+  // Highlight the top nav as scrolling occurs
+  $('body').scrollspy({
+    target: '.navbar-fixed-top',
+    offset: 51
+  });
+
+  // Closes the Responsive Menu on Menu Item Click
+  $('.navbar-collapse ul li a').on('click', function () {
+    $('.navbar-toggle:visible').trigger( "click" );
+  });
+
+  // Offset for Main Navigation
+  $('#mainNav').affix({
+    offset: {
+      top: 100
+    }
+  });
+
+  $("#subscribe-form input").jqBootstrapValidation({
+    preventSubmit: true,
+    submitError: function ($form, event, errors) {
+      console.log('inside error');
+      // additional error messages or events
+    },
+    submitSuccess: function ($form, event) {
+      console.log('inside success');
+      event.preventDefault(); // prevent default submit behaviour
+      var email = $("input#email").val();
+      $.ajax({
+        url: "../mail/subscribe.php",
+        type: "POST",
+        data: {
+          email: email
+        },
+        cache: false,
+        success: function () {
+          // Success message
+          $('#subscribe2-success').html("<div class='alert alert-success'>");
+          $('#subscribe2-success > .alert-success').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+            .append("</button>");
+          $('#subscribe2-success > .alert-success')
+            .append("<strong>Your message has been sent. </strong>");
+          $('#subscribe2-success > .alert-success')
+            .append('</div>');
+
+          //clear all fields
+          $('#subscribe-form').trigger("reset");
+        },
+        error: function () {
+          // Fail message
+          $('#subscribe2-success').html("<div class='alert alert-danger'>");
+          $('#subscribe2-success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+            .append("</button>");
+          $('#subscribe2-success > .alert-danger').append("<strong>Sorry, it seems that my mail server is not responding. Please try again later!");
+          $('#subscribe2-success > .alert-danger').append('</div>');
+          //clear all fields
+          $('#subscribe-form').trigger("reset");
+        }
+      });
+    },
+    filter: function () {
+      return $(this).is(":visible");
+    }
+  });
+
+  $("#contactForm input,#contactForm textarea").jqBootstrapValidation({
+    preventSubmit: true,
+    submitError: function ($form, event, errors) {
+      // additional error messages or events
+    },
+    submitSuccess: function ($form, event) {
+      event.preventDefault(); // prevent default submit behaviour
+      // get values from FORM
+      var name = $("input#name").val();
+      var email = $("input#email").val();
+      var message = $("textarea#message").val();
+      var firstName = name; // For Success/Failure Message
+      // Check for white space in name for Success/Fail message
+      if (firstName.indexOf(' ') >= 0) {
+        firstName = name.split(' ').slice(0, -1).join(' ');
+      }
+      $.ajax({
+        url: "../mail/contact_me.php",
+        type: "POST",
+        data: {
+          name: name,
+          email: email,
+          message: message
+        },
+        cache: false,
+        success: function () {
+          // Success message
+          $('#success').html("<div class='alert alert-success'>");
+          $('#success > .alert-success').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+          .append("</button>");
+          $('#success > .alert-success')
+          .append("<strong>Your message has been sent. </strong>");
+          $('#success > .alert-success')
+          .append('</div>');
+
+          //clear all fields
+          $('#contactForm').trigger("reset");
+        },
+        error: function () {
+          // Fail message
+          $('#success').html("<div class='alert alert-danger'>");
+          $('#success > .alert-danger').html("<button type='button' class='close' data-dismiss='alert' aria-hidden='true'>&times;")
+          .append("</button>");
+          $('#success > .alert-danger').append("<strong>Sorry " + firstName + ", it seems that my mail server is not responding. Please try again later!");
+          $('#success > .alert-danger').append('</div>');
+          //clear all fields
+          $('#contactForm').trigger("reset");
+        }
+      });
+    },
+    filter: function () {
+      return $(this).is(":visible");
+    }
+  });
+
+  $("a[data-toggle=\"tab\"]").on('click', function (e) {
+    e.preventDefault();
+    $(this).tab("show");
+  });
+
+  jQuery(window).scroll(function () {
+    var offset = 250;
+    var duration = 300;
+    if (jQuery(this).scrollTop() > offset) {
+      jQuery('.back-to-top').fadeIn(duration);
+    } else {
+      jQuery('.back-to-top').fadeOut(duration);
+    }
+  });
+
+  jQuery('.back-to-top').on('click', function (event) {
+    event.preventDefault();
+    jQuery('html, body, .portfolio-modal').animate({scrollTop: 0}, 300);
+    return false;
+  })
+});
+
